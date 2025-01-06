@@ -1,0 +1,8 @@
+## Interface: 11200
+## Title: Distance Display
+## Notes: Displays the exact distance to your target.
+## Author: beastie
+## Version: 1.0
+## SavedVariables: DistanceDisplaySettings
+
+DistanceDisplay.lua
