@@ -14,3 +14,5 @@ Commands:
   /dd unlock
   /dd show
   /dd hide
+
+TODO: Class specific range indicators. Will take personal request
