@@ -1,7 +1,7 @@
 ## Interface: 11200
 ## Title: Distance Display
 ## Notes: Displays the exact distance to your target.
-## Author: beastie
+## Author: Quad Crown
 ## Version: 1.0
 ## SavedVariables: DistanceDisplaySettings
 
