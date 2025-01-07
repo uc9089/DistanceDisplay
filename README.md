@@ -3,7 +3,7 @@ A visual indicator for distance for Turtle WoW
 
 Displays a distance indicator. It will be green for 30 yards or less, and red for greater than 30 yards. 
 
-**IMPORTANTANT:** This addon uses UNITXP_SP3. Without this client mod, it will NOT work.
+**IMPORTANT:** This addon uses UNITXP_SP3. Without this client mod, it will NOT work.
 
 https://github.com/allfoxwy/UnitXP_SP3
 
