@@ -1,13 +1,14 @@
 -- Distance Display Addon for Turtle WoW
 
--- Saved Variables
+-- Add autoHide to the saved variables
 DistanceDisplaySettings = DistanceDisplaySettings or {
     point = "CENTER",
     xOfs = 0,
     yOfs = 0,
     locked = false,
     hidden = false,
-    scale = 0.75
+    scale = 0.75,
+    autoHide = false -- Default: autoHide is off
 }
 
 -- Create a global namespace
@@ -49,9 +50,11 @@ distanceText:SetFont("Fonts/FRIZQT__.TTF", 24, "OUTLINE")
 distanceText:SetPoint("CENTER", distanceDisplayFrame, "CENTER")
 distanceText:SetText("--")
 
--- Update visibility based on settings
+-- Update visibility based on settings and autoHide
 local function UpdateFrameVisibility()
     if DistanceDisplaySettings.hidden then
+        distanceDisplayFrame:Hide()
+    elseif DistanceDisplaySettings.autoHide and not UnitExists("target") then
         distanceDisplayFrame:Hide()
     else
         distanceDisplayFrame:Show()
@@ -63,16 +66,35 @@ local function UpdateFrameScale(scale)
     distanceDisplayFrame:SetScale(scale)
 end
 
+-- Adjust distance for melee range issues
+local function GetAdjustedDistance(target)
+    local distance = UnitXP("distanceBetween", "player", target)
+    if distance and distance <= 10 then
+        distance = distance
+    end
+    return distance
+end
+
 -- Event handling for distance updates
 local function UpdateDistance()
     local target = "target"
     if UnitExists(target) then
         local distance = UnitXP("distanceBetween", "player", target)
         if distance then
-            if distance > 30 then
-                distanceText:SetTextColor(1, 0, 0) -- Red text
+            if UnitClass("player") == "Warrior" then
+                if distance > 8 then
+                    distanceText:SetTextColor(1, 0, 0) -- Red for >8 yards
+                elseif distance > 5 then
+                    distanceText:SetTextColor(0.54, 0.81, 0.94) -- Baby blue for 5-8 yards
+                else
+                    distanceText:SetTextColor(0, 1, 0) -- Green for <=5 yards
+                end
             else
-                distanceText:SetTextColor(0, 1, 0) -- Green text
+                if distance > 30 then
+                    distanceText:SetTextColor(1, 0, 0) -- Red text
+                else
+                    distanceText:SetTextColor(0, 1, 0) -- Green text
+                end
             end
             distanceText:SetText(string.format("%.2f yds", distance))
         else
@@ -81,9 +103,10 @@ local function UpdateDistance()
     else
         distanceText:SetText("--")
     end
+    UpdateFrameVisibility() -- Call to handle autoHide logic
 end
 
--- Slash command handler
+-- Update /dd command to handle autohide toggle
 SLASH_DD1 = "/dd"
 SlashCmdList["DD"] = function(input)
     if input == "lock" then
@@ -100,11 +123,15 @@ SlashCmdList["DD"] = function(input)
         DistanceDisplaySettings.hidden = false
         UpdateFrameVisibility()
         print("Distance Display: Frame shown.")
+    elseif input == "autohide" then
+        DistanceDisplaySettings.autoHide = not DistanceDisplaySettings.autoHide
+        print("Distance Display: Auto-hide is now " .. (DistanceDisplaySettings.autoHide and "enabled." or "disabled."))
+        UpdateFrameVisibility()
     else
         local scale = tonumber(input)
         if scale and scale >= 0.1 and scale <= 1.0 then
             DistanceDisplaySettings.scale = scale
-            UpdateFrameScale(scale)
+            distanceDisplayFrame:SetScale(scale)
             print("Distance Display: Frame scale set to " .. (scale * 100) .. "%.")
         else
             print("Distance Display Commands:")
@@ -112,11 +139,18 @@ SlashCmdList["DD"] = function(input)
             print("  unlock - Unlock the frame.")
             print("  hide - Hide the frame.")
             print("  show - Show the frame.")
+            print("  autohide - Toggle auto-hide when no target is selected.")
             print("  <scale> - Set scale (0.1 to 1.0). For example, /dd 0.5")
         end
     end
 end
 
+-- Register events for real-time updates
+local updateFrame = CreateFrame("Frame")
+updateFrame:SetScript("OnUpdate", function()
+    UpdateDistance()
+end)
+updateFrame:RegisterEvent("PLAYER_TARGET_CHANGED")
 
 -- Initialize settings and position
 local function InitializeDistanceDisplay()
@@ -136,13 +170,3 @@ end
 local initFrame = CreateFrame("Frame")
 initFrame:RegisterEvent("PLAYER_LOGIN")
 initFrame:SetScript("OnEvent", InitializeDistanceDisplay)
-
--- Register events for real-time updates
-local updateFrame = CreateFrame("Frame")
-updateFrame:SetScript("OnUpdate", function()
-    UpdateDistance()
-end)
-updateFrame:RegisterEvent("PLAYER_TARGET_CHANGED")
-
--- Addon loaded message
-print("Distance Display: Type /distdisplay for commands.")
