@@ -16,15 +16,16 @@ DistanceDisplay = DistanceDisplay or {}
 
 -- Create the main frame for distance display
 local distanceDisplayFrame = CreateFrame("Frame", "DistanceDisplayFrame", UIParent)
-distanceDisplayFrame:SetWidth(150)
-distanceDisplayFrame:SetHeight(60)
+distanceDisplayFrame:SetWidth(90)
+distanceDisplayFrame:SetHeight(30)
 distanceDisplayFrame:SetBackdrop({
     bgFile = "Interface/Tooltips/UI-Tooltip-Background",
     edgeFile = "Interface/Tooltips/UI-Tooltip-Border",
-    tile = true, tileSize = 16, edgeSize = 16,
-    insets = { left = 4, right = 4, top = 4, bottom = 4 },
+    tile = true, tileSize = 8, edgeSize = 8,
+    insets = { left = 1, right = 1, top = 1, bottom = 1 },
 })
 distanceDisplayFrame:SetBackdropColor(0, 0, 0, 0.8)
+
 distanceDisplayFrame:EnableMouse(true)
 distanceDisplayFrame:SetMovable(true)
 distanceDisplayFrame:RegisterForDrag("LeftButton")
@@ -46,8 +47,9 @@ end)
 
 -- Add text to display distance
 local distanceText = distanceDisplayFrame:CreateFontString(nil, "OVERLAY")
-distanceText:SetFont("Fonts/FRIZQT__.TTF", 24, "OUTLINE")
+distanceText:SetFont("Interface\\AddOns\\HealersMate\\fonts\\BigNoodleTitling.ttf", 18, "OUTLINE")
 distanceText:SetPoint("CENTER", distanceDisplayFrame, "CENTER")
+distanceText:SetTextColor(1, 1, 1)
 distanceText:SetText("--")
 
 -- Update visibility based on settings and autoHide
@@ -80,30 +82,56 @@ local function UpdateDistance()
     local target = "target"
     if UnitExists(target) then
         local distance = UnitXP("distanceBetween", "player", target)
-        if distance then
-            if UnitClass("player") == "Warrior" then
-                if distance > 8 then
-                    distanceText:SetTextColor(1, 0, 0) -- Red for >8 yards
-                elseif distance > 5 then
-                    distanceText:SetTextColor(0.54, 0.81, 0.94) -- Baby blue for 5-8 yards
-                else
-                    distanceText:SetTextColor(0, 1, 0) -- Green for <=5 yards
-                end
-            else
-                if distance > 30 then
-                    distanceText:SetTextColor(1, 0, 0) -- Red text
-                else
-                    distanceText:SetTextColor(0, 1, 0) -- Green text
-                end
-            end
+		if distance == nil then
+			distanceText:SetText("--")
+			distanceDisplayFrame:SetBackdropColor(0, 0, 0, 0.8)
+			
+        elseif distance < 5 then
             distanceText:SetText(string.format("%.2f yds", distance))
-        else
-            distanceText:SetText("--")
-        end
+			distanceDisplayFrame:SetBackdropColor(0, 0, 1, 0.95)
+		elseif distance > 5 and distance < 8 then
+            distanceText:SetText(string.format("%.2f yds", distance))
+			distanceDisplayFrame:SetBackdropColor(0.2, 0.5, 1, 0.95)
+		
+		elseif distance > 8 and distance < 20 then
+            distanceText:SetText(string.format("%.2f yds", distance))
+			distanceDisplayFrame:SetBackdropColor(0.34, 0.7, 1, 0.95)
+
+		elseif distance > 20 and distance < 30 then
+            distanceText:SetText(string.format("%.2f yds", distance))
+			distanceDisplayFrame:SetBackdropColor(0, 0.86, 0, 0.95)
+
+		elseif distance > 30 and distance < 35 then
+            distanceText:SetText(string.format("%.2f yds", distance))
+			distanceDisplayFrame:SetBackdropColor(0.7, 0.86, 0, 0.95)
+
+		elseif distance > 35 and distance < 41 then
+            distanceText:SetText(string.format("%.2f yds", distance))
+			distanceDisplayFrame:SetBackdropColor(1, 1, 0, 0.95)
+
+		else
+			distanceText:SetText(string.format("%.2f yds", distance))
+			distanceDisplayFrame:SetBackdropColor(1, 0, 0, 0.3)
+
+		end
+
     else
         distanceText:SetText("--")
+		distanceDisplayFrame:SetBackdropColor(0, 0, 0, 0.8)
     end
     UpdateFrameVisibility() -- Call to handle autoHide logic
+end
+
+local function UpdateSight()
+local target = "target"
+	if UnitExists(target) then
+		local los = UnitXP("inSight", "player", target)
+		if los == true then
+			distanceText:SetTextColor(1, 1, 1)
+		else
+			distanceText:SetTextColor(1, 0.4, 0.4)
+		end
+	end
 end
 
 -- Update /dd command to handle autohide toggle
@@ -149,6 +177,7 @@ end
 local updateFrame = CreateFrame("Frame")
 updateFrame:SetScript("OnUpdate", function()
     UpdateDistance()
+	UpdateSight()
 end)
 updateFrame:RegisterEvent("PLAYER_TARGET_CHANGED")
 
