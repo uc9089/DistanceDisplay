@@ -1,7 +1,8 @@
 # DistanceDisplay
 A visual indicator for distance for Turtle WoW
 
-Displays a distance indicator. It will be green for 30 yards or less, and red for greater than 30 yards. 
+Displays a distance indicator. The indicator color is changed according to range between you and your target. 
+For Line of Sight, the range text is displayed red if your target is LoS. 
 
 **IMPORTANT:** This addon uses UNITXP_SP3. Without this client mod, it will NOT work.
 
