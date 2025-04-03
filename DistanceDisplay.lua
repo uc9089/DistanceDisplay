@@ -47,7 +47,7 @@ end)
 
 -- Add text to display distance
 local distanceText = distanceDisplayFrame:CreateFontString(nil, "OVERLAY")
-distanceText:SetFont("Interface\\AddOns\\HealersMate\\fonts\\BigNoodleTitling.ttf", 18, "OUTLINE")
+distanceText:SetFont("Interface\\AddOns\\DistanceDisplay\\fonts\\BigNoodleTitling.ttf", 18, "OUTLINE")
 distanceText:SetPoint("CENTER", distanceDisplayFrame, "CENTER")
 distanceText:SetTextColor(1, 1, 1)
 distanceText:SetText("--")
